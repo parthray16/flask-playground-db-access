@@ -54,11 +54,11 @@ def get_users():
         search_job = request.args.get('job')
         if search_username and search_job:
             # TODO: Replace with database access
-            result = find_users_by_name_job(search_username, search_job)  
+            result = User().find_by_name_job(search_username, search_job)
         elif search_username:
             # using list shorthand for filtering the list.
             # TODO: Replace with database access
-            result = [user for user in users['users_list'] if user['name'] == search_username]
+            result = User().find_by_name(search_username)
         else:
             result = User().find_all()
         return {"users_list": result}
@@ -80,7 +80,8 @@ def get_user(id):
     elif request.method == 'DELETE':
         user = User({"_id":id})
         resp = user.remove()
-
+        if (resp.hasWriteError()):
+            return {}, resp.writeError.code
         # TODO: Check the resp object if the removal was successful or not.
         # Return a 404 status code if it was not successful
         return {}, 204
